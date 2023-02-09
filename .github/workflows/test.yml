@@ -8,6 +8,7 @@ on:
   push:
     branches:
       - 'master'
+      - 'test-run'
     paths-ignore:
       - '**.md'
   pull_request:
