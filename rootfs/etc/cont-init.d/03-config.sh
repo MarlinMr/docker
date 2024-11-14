@@ -66,6 +66,12 @@ AUTH_AD_GROUP_AD_USERGROUP=${AUTH_AD_GROUP_AD_USERGROUP:-Domain users}
 
 ACTIVE_DIRECTORY_USERS_PURGE=${ACTIVE_DIRECTORY_USERS_PURGE:-30}
 
+DISCOVERY_SNMP_V3_AUTHLEVEL=${DISCOVERY_SNMP_V3_AUTHLEVEL:-authPriv}
+DISCOVERY_SNMP_V3_AUTHNAME=${DISCOVERY_SNMP_V3_AUTHNAME:-librenms_user}
+DISCOVERY_SNMP_V3_AUTHPASS=${DISCOVERY_SNMP_V3_AUTHPASS:-insecure_password}
+DISCOVERY_SNMP_V3_AUTHALGO=${DISCOVERY_SNMP_V3_AUTHALGO:-SHA}
+DISCOVERY_SNMP_V3_CRYPTOPASS=${DISCOVERY_SNMP_V3_CRYPTOPASS:-insecure_password}
+DISCOVERY_SNMP_V3_CRYPTOALGO=${DISCOVERY_SNMP_V3_CRYPTOALGO:-AES}
 
 # Timezone
 echo "Setting timezone to ${TZ}..."
@@ -174,6 +180,18 @@ cat > ${LIBRENMS_PATH}/config.d/active_directory.php <<EOL
 \$config['auth_ad_groups']['$AUTH_AD_GROUP_AD_ADMINGROUP']['level'] = 10;
 \$config['auth_ad_groups']['$AUTH_AD_GROUP_AD_USERGROUP']['level'] = 5;
 \$config['active_directory_users_purge'] = $ACTIVE_DIRECTORY_USERS_PURGE;
+EOL
+
+# Active Directory
+echo "Setting auto discovery config..."
+cat > ${LIBRENMS_PATH}/config.d/auto_discovery.php <<EOL
+<?php
+\$config['snmp']['v3'][0]['authlevel'] = '$DISCOVERY_SNMP_V3_AUTHLEVEL';
+\$config['snmp']['v3'][0]['authname'] = '$DISCOVERY_SNMP_V3_AUTHNAME';
+\$config['snmp']['v3'][0]['authpass'] = '$DISCOVERY_SNMP_V3_AUTHPASS';
+\$config['snmp']['v3'][0]['authalgo'] = '$DISCOVERY_SNMP_V3_AUTHALGO';
+\$config['snmp']['v3'][0]['cryptopass'] = '$DISCOVERY_SNMP_V3_CRYPTOPASS';
+\$config['snmp']['v3'][0]['cryptoalgo'] = '$DISCOVERY_SNMP_V3_CRYPTOALGO';
 EOL
 
 # Config : Directories
