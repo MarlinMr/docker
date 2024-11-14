@@ -96,16 +96,15 @@ $ docker buildx bake image-all
 Following platforms for this image are available:
 
 ```
-$ docker run --rm mplatform/mquery librenms/librenms:latest
-Image: librenms/librenms:latest
- * Manifest List: Yes
- * Supported platforms:
-   - linux/amd64
-   - linux/arm/v7
-   - linux/arm64
-   - linux/386
-   - linux/ppc64le
-   - linux/s390x
+$ docker buildx imagetools inspect librenms/librenms --format "{{json .Manifest}}" | \
+  jq -r '.manifests[] | select(.platform.os != null and .platform.os != "unknown") | .platform | "\(.os)/\(.architecture)\(if .variant then "/" + .variant else "" end)"'
+
+linux/386
+linux/amd64
+linux/arm/v7
+linux/arm64
+linux/ppc64le
+linux/s390x
 ```
 
 ## Environment variables
@@ -149,7 +148,7 @@ Image: librenms/librenms:latest
 ### Dispatcher service
 
 > [!WARNING]
-> Only used if you enable and run a [sidecar dispatcher container](#dispatcher-service-container).
+> You need at least one dispatcher sidecar, otherwise poller will not run [sidecar dispatcher container](#dispatcher-service-container).
 
 * `SIDECAR_DISPATCHER`: Set to `1` to enable sidecar dispatcher mode for this container (default `0`)
 * `DISPATCHER_NODE_ID`: Unique node ID for your dispatcher service
