@@ -50,6 +50,29 @@ DB_TIMEOUT=${DB_TIMEOUT:-30}
 
 LIBRENMS_BASE_URL=${LIBRENMS_BASE_URL:-/}
 
+AUTH_MECHANISM=${AUTH_MECHANISM:-mysql}
+
+AUTH_AD_URL=${AUTH_AD_URL:-ldaps://example.com}
+AUTH_AD_DOMAIN=${AUTH_AD_DOMAIN:-example.com}
+AUTH_AD_BASE_DN=${AUTH_AD_BASE_DN:-dc=example,dc=com}
+AUTH_AD_CHECK_CERTIFICATES=${AUTH_AD_CHECK_CERTIFICATES:-true}
+AUTH_AD_BINDUSER=${AUTH_AD_BINDUSER:-librenms-bind}
+AUTH_AD_BINDPASSWORD=${AUTH_AD_BINDPASSWORD}
+AUTH_AD_TIMEOUT=${AUTH_AD_TIMEOUT:-5}
+AUTH_AD_DEBUG=${AUTH_AD_DEBUG:-true}
+AUTH_AD_REQUIRE_GROUPMEMBERSHIP=${AUTH_AD_REQUIRE_GROUPMEMBERSHIP:-true}
+AUTH_AD_GROUP_AD_ADMINGROUP=${AUTH_AD_GROUP_AD_ADMINGROUP:-Domain admins}
+AUTH_AD_GROUP_AD_USERGROUP=${AUTH_AD_GROUP_AD_USERGROUP:-Domain users}
+
+ACTIVE_DIRECTORY_USERS_PURGE=${ACTIVE_DIRECTORY_USERS_PURGE:-30}
+
+DISCOVERY_SNMP_V3_AUTHLEVEL=${DISCOVERY_SNMP_V3_AUTHLEVEL:-authPriv}
+DISCOVERY_SNMP_V3_AUTHNAME=${DISCOVERY_SNMP_V3_AUTHNAME:-librenms_user}
+DISCOVERY_SNMP_V3_AUTHPASS=${DISCOVERY_SNMP_V3_AUTHPASS:-insecure_password}
+DISCOVERY_SNMP_V3_AUTHALGO=${DISCOVERY_SNMP_V3_AUTHALGO:-SHA}
+DISCOVERY_SNMP_V3_CRYPTOPASS=${DISCOVERY_SNMP_V3_CRYPTOPASS:-insecure_password}
+DISCOVERY_SNMP_V3_CRYPTOALGO=${DISCOVERY_SNMP_V3_CRYPTOALGO:-AES}
+
 # Timezone
 echo "Setting timezone to ${TZ}..."
 ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime
@@ -138,6 +161,37 @@ DB_PORT=${DB_PORT}
 DB_DATABASE=${DB_NAME}
 DB_USERNAME=${DB_USER}
 DB_PASSWORD="${DB_PASSWORD}"
+EOL
+
+# Active Directory
+echo "Setting Active Directory config..."
+cat > ${LIBRENMS_PATH}/config.d/active_directory.php <<EOL
+<?php
+\$config['auth_mechanism'] = '$AUTH_MECHANISM';
+\$config['auth_ad_url'] = '$AUTH_AD_URL';
+\$config['auth_ad_domain'] = '$AUTH_AD_DOMAIN';
+\$config['auth_ad_base_dn'] = '$AUTH_AD_BASE_DN';
+\$config['auth_ad_check_certificates'] = $AUTH_AD_CHECK_CERTIFICATES;
+\$config['auth_ad_biduser'] = '$AUTH_AD_BINDUSER';
+\$config['auth_ad_bidpassword'] = '$AUTH_AD_BINDPASSWORD';
+\$config['auth_ad_timeout'] = $AUTH_AD_TIMEOUT;
+\$config['auth_ad_debug'] = $AUTH_AD_DEBUG;
+\$config['auth_ad_require_groupmembership'] = $AUTH_AD_REQUIRE_GROUPMEMBERSHIP;
+\$config['auth_ad_groups']['$AUTH_AD_GROUP_AD_ADMINGROUP']['level'] = 10;
+\$config['auth_ad_groups']['$AUTH_AD_GROUP_AD_USERGROUP']['level'] = 5;
+\$config['active_directory_users_purge'] = $ACTIVE_DIRECTORY_USERS_PURGE;
+EOL
+
+# Active Directory
+echo "Setting auto discovery config..."
+cat > ${LIBRENMS_PATH}/config.d/auto_discovery.php <<EOL
+<?php
+\$config['snmp']['v3'][0]['authlevel'] = '$DISCOVERY_SNMP_V3_AUTHLEVEL';
+\$config['snmp']['v3'][0]['authname'] = '$DISCOVERY_SNMP_V3_AUTHNAME';
+\$config['snmp']['v3'][0]['authpass'] = '$DISCOVERY_SNMP_V3_AUTHPASS';
+\$config['snmp']['v3'][0]['authalgo'] = '$DISCOVERY_SNMP_V3_AUTHALGO';
+\$config['snmp']['v3'][0]['cryptopass'] = '$DISCOVERY_SNMP_V3_CRYPTOPASS';
+\$config['snmp']['v3'][0]['cryptoalgo'] = '$DISCOVERY_SNMP_V3_CRYPTOALGO';
 EOL
 
 # Config : Directories
